@@ -6,7 +6,7 @@ import hashlib
 import socket
 import sys
 
-from pypjlink import protocol
+from pypjlink import pypjlink.
 
 class ProjectorError(Exception):
     pass
@@ -48,6 +48,7 @@ ERROR_STATES_REV = {
 class Projector(object):
     def __init__(self, f):
         self.f = f
+        self.pw_hash = None
 
     @classmethod
     def from_address(cls, address, port=4352):
@@ -87,7 +88,7 @@ class Projector(object):
 
         pass_data = (salt + password).encode('utf-8')
         pass_data_md5 = hashlib.md5(pass_data).hexdigest()
-
+        self.pw_hash = pass_data_md5
         # we *must* send a command to complete the procedure,
         # so we just get the power state.
 
@@ -116,13 +117,13 @@ class Projector(object):
         return True
 
     def get(self, body):
-        success, response = protocol.send_command(self.f, body, '?')
+        success, response = protocol.send_command(self.f, body, '?', self.pw_hash)
         if not success:
             raise ProjectorError(response)
         return response
 
     def set(self, body, param):
-        success, response = protocol.send_command(self.f, body, param)
+        success, response = protocol.send_command(self.f, body, param, self.pw_hash)
         if not success:
             raise ProjectorError(response)
         assert response == 'OK'

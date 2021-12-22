@@ -63,9 +63,9 @@ ERRORS = {
     'ERR4': 'projector failure',
 }
 
-def send_command(f, req_body, req_param):
+def send_command(f, req_body, req_param, hash):
     data = to_binary(req_body, req_param)
-    f.write(data)
+    f.write(hash + data)
     f.flush()
 
     resp_body, resp_param = parse_response(f)
